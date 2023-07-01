@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
-public class AlmostUnifiedWrapper {
+public class AlmostUnifiedLookupWrapper {
     private static boolean isLoaded() {
 
         return ModList.get().isLoaded("almostunified");
