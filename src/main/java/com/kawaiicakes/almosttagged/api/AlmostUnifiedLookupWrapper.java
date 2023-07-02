@@ -12,18 +12,18 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 public class AlmostUnifiedLookupWrapper {
-    private static boolean isLoaded() {
+    public static boolean isLoaded() {
 
         return ModList.get().isLoaded("almostunified");
 
     }
 
-    public static Item getPreferredItemForTag(TagKey<Item> tag) {
+    public static Item getPreferredItemForTag(TagKey<Item> key) {
         if (isLoaded()) {
-            return Adapter.getPreferredItemForTag(tag);
+            return Adapter.getPreferredItemForTag(key);
         }
 
-        return Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(tag)
+        return Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(key)
                 .stream()
                 .findFirst()
                 .orElseThrow();
