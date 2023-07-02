@@ -18,13 +18,13 @@ public class AlmostUnifiedLookupWrapper {
 
     }
 
-    @Nullable
     public static Item getPreferredItemForTag(TagKey<Item> tag) {
         if (isLoaded()) {
             return Adapter.getPreferredItemForTag(tag);
         }
 
-        return Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(tag).stream()
+        return Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(tag)
+                .stream()
                 .findFirst()
                 .orElseThrow();
     }
