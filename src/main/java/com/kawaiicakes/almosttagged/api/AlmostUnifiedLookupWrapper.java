@@ -1,15 +1,13 @@
 package com.kawaiicakes.almosttagged.api;
 
 import com.almostreliable.unified.api.AlmostUnifiedLookup;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import javax.annotation.Nullable;
 
@@ -26,11 +24,9 @@ public class AlmostUnifiedLookupWrapper {
             return Adapter.getPreferredItemForTag(tag);
         }
 
-        return Registry.ITEM.getTag(tag)
-                .map(HolderSet.ListBacked::stream)
-                .flatMap(Stream::findFirst)
-                .map(Holder::value)
-                .orElse(null);
+        return Objects.requireNonNull(ForgeRegistries.ITEMS.tags()).getTag(tag).stream()
+                .findFirst()
+                .orElseThrow();
     }
 
     @Nullable
