@@ -16,15 +16,15 @@ tags seems unideal; and possibly laggy.
 Additionally merging these two methods might be more elegant
 of a solution. My concern is readability.
  */
-class TagReference {
-    static Stream<TagKey<Item>> getItemTagStreamFromItem(Item item) {
+public class TagReference {
+    public static Stream<TagKey<Item>> getItemTagStreamFromItem(Item item) {
         return Objects.requireNonNull(ForgeRegistries.ITEMS.tags())
                 .stream()
                 .filter(itag -> itag.contains(item))
                 .map(ITag::getKey);
     }
 
-    static Stream<TagKey<Block>> getBlockTagStreamFromItem(Item item) {
+    public static Stream<TagKey<Block>> getBlockTagStreamFromItem(Item item) {
         return Objects.requireNonNull(ForgeRegistries.BLOCKS.tags())
                 .stream()
                 .filter(itag -> itag.contains(Block.byItem(item)))
