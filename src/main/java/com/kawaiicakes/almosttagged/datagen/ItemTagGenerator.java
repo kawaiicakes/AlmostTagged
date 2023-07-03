@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class ItemTagGenerator extends ForgeRegistryTagsProvider<Item>{
-    protected ItemTagGenerator(DataGenerator generator, IForgeRegistry<Item> forgeRegistry, String modId, @Nullable ExistingFileHelper existingFileHelper) {
+    public ItemTagGenerator(DataGenerator generator, IForgeRegistry<Item> forgeRegistry, String modId, @Nullable ExistingFileHelper existingFileHelper) {
         super(generator, forgeRegistry, modId, existingFileHelper);
     }
 

@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class BlockTagGenerator extends ForgeRegistryTagsProvider<Block>{
-    protected BlockTagGenerator(DataGenerator generator, IForgeRegistry<Block> forgeRegistry, String modId, @Nullable ExistingFileHelper existingFileHelper) {
+    public BlockTagGenerator(DataGenerator generator, IForgeRegistry<Block> forgeRegistry, String modId, @Nullable ExistingFileHelper existingFileHelper) {
         super(generator, forgeRegistry, modId, existingFileHelper);
     }
 
