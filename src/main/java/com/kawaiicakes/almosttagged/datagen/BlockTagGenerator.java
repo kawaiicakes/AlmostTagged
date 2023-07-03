@@ -3,7 +3,6 @@ package com.kawaiicakes.almosttagged.datagen;
 import com.kawaiicakes.almosttagged.api.AlmostUnifiedLookupWrapper;
 import com.kawaiicakes.almosttagged.utils.TagReference;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
