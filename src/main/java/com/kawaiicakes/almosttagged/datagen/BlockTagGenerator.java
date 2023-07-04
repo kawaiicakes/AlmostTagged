@@ -21,7 +21,7 @@ public class BlockTagGenerator extends ForgeRegistryTagsProvider<Block>{
     }
 
     @Override
-    protected void addTags() {
+    public void addTags() {
         final Set<TagKey<Item>> tagSet = AlmostUnifiedLookupWrapper.getConfiguredTags();
         assert tagSet != null;
 

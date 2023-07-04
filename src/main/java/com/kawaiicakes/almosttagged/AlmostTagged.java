@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 public class AlmostTagged
 {
     public static final String MOD_ID = "almosttagged";
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     public AlmostTagged()
     {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -26,7 +26,7 @@ public class AlmostTagged
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    private void commonSetup(final FMLCommonSetupEvent event)
+    public void commonSetup(final FMLCommonSetupEvent event)
     {
         LOGGER.info("HELLO FROM COMMON SETUP");
     }

@@ -1,5 +1,6 @@
 package com.kawaiicakes.almosttagged.datagen;
 
+import com.kawaiicakes.almosttagged.AlmostTagged;
 import com.kawaiicakes.almosttagged.api.AlmostUnifiedLookupWrapper;
 import com.kawaiicakes.almosttagged.utils.TagReference;
 import net.minecraft.data.DataGenerator;
@@ -20,11 +21,13 @@ public class ItemTagGenerator extends ForgeRegistryTagsProvider<Item>{
     }
 
     @Override
-    protected void addTags() {
+    public void addTags() {
         final Set<TagKey<Item>> tagSet = AlmostUnifiedLookupWrapper.getConfiguredTags();
         assert tagSet != null;
+        AlmostTagged.LOGGER.info(tagSet.toString());
 
         for (TagKey<Item> key : tagSet) {
+            AlmostTagged.LOGGER.info(key.location().toString());
             final Item preferredItem = AlmostUnifiedLookupWrapper.getPreferredItemForTag(key);
             if (preferredItem.toString().equals("minecraft:air")) return;
 
