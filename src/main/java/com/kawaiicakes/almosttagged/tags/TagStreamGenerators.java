@@ -6,33 +6,23 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TagStreamGenerators {
-    public static void getAUItemTagStream() {
-        final Set<TagKey<Item>> tagSet = AlmostUnifiedLookupWrapper.getConfiguredTags();
+    private static Map<TagKey<Item>, Set<TagKey<Item>>> itemMap;
+    public static Map<TagKey<Item>, Set<TagKey<Item>>> getItemMap() {return itemMap;}
+    private static Map<TagKey<Item>, Set<TagKey<Block>>> blockMap;
+    public static Map<TagKey<Item>, Set<TagKey<Block>>> getBlockMap() {return blockMap;}
+
+    private static Set<TagKey<Item>> tagSet;
+    public static void tagSet(Set<TagKey<Item>> setter) {tagSet = setter;}
+
+    public static void generateAUTagMaps() {
         assert tagSet != null;
-        AlmostTagged.LOGGER.info(tagSet.toString());
-
-        for (TagKey<Item> key : tagSet) {
-            AlmostTagged.LOGGER.info(key.location().toString());
-            final Item preferredItem = AlmostUnifiedLookupWrapper.getPreferredItemForTag(key);
-            if (preferredItem.toString().equals("minecraft:air")) return;
-
-            final Set<Item> potentialItems = Objects.requireNonNull(AlmostUnifiedLookupWrapper.getPotentialItems(key));
-            if (potentialItems.size() == 0) return;
-
-            final Stream<TagKey<Item>> tagStream = potentialItems
-                    .stream()
-                    .mapMulti((item, consumer) -> TagReference.getItemTagStreamFromItem(item).forEach(consumer));
-        }
-    }
-
-    public static void getAUBlockTagStream() {
-        final Set<TagKey<Item>> tagSet = AlmostUnifiedLookupWrapper.getConfiguredTags();
-        assert tagSet != null;
+        final Map<TagKey<Item>, Set<TagKey<Item>>> tagItemMap = new HashMap<>();
+        final Map<TagKey<Item>, Set<TagKey<Block>>> tagBlockMap = new HashMap<>();
 
         for (TagKey<Item> key : tagSet) {
             final Item preferredItem = AlmostUnifiedLookupWrapper.getPreferredItemForTag(key);
@@ -41,9 +31,23 @@ public class TagStreamGenerators {
             final Set<Item> potentialItems = Objects.requireNonNull(AlmostUnifiedLookupWrapper.getPotentialItems(key));
             if (potentialItems.size() == 0) return;
 
-            final Stream<TagKey<Block>> tagStream = potentialItems
+            final Set<TagKey<Item>> inheritedItemSet = potentialItems
                     .stream()
-                    .mapMulti((item, consumer) -> TagReference.getBlockTagStreamFromItem(item).forEach(consumer));
+                    .<TagKey<Item>>mapMulti(((item, tagKeyConsumer) -> TagReference.getItemTagStreamFromItem(item).forEach(tagKeyConsumer)))
+                    .collect(Collectors.toSet());
+
+            final Set<TagKey<Block>> inheritedBlockSet = potentialItems
+                    .stream()
+                    .<TagKey<Block>>mapMulti(((item, tagKeyConsumer) -> TagReference.getBlockTagStreamFromItem(item).forEach(tagKeyConsumer)))
+                    .collect(Collectors.toSet());
+
+            tagItemMap.put(key, inheritedItemSet);
+            tagBlockMap.put(key, inheritedBlockSet);
         }
+
+        itemMap = tagItemMap;
+        blockMap = tagBlockMap;
+        AlmostTagged.LOGGER.info(tagItemMap.toString());
+        AlmostTagged.LOGGER.info(tagBlockMap.toString());
     }
 }
