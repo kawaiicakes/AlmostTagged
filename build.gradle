@@ -119,7 +119,7 @@ dependencies {
 
 mixin {
     add sourceSets.main, 'refmap.almosttagged.json'
-    config 'mixins.chemistrycraft.json'
+    config 'mixins.almosttagged.json'
 }
 
 jar {
