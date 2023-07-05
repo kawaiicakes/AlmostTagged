@@ -1,4 +1,4 @@
-package com.kawaiicakes.almosttagged.utils;
+package com.kawaiicakes.almosttagged.tags;
 
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
