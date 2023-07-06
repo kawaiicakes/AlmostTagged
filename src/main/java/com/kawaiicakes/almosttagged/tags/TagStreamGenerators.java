@@ -8,21 +8,20 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class TagStreamGenerators {
-    private static Map<TagKey<Item>, Set<TagKey<Item>>> itemMap;
-    public static Map<TagKey<Item>, Set<TagKey<Item>>> getItemMap() {return itemMap;}
-    private static Map<TagKey<Item>, Set<TagKey<Block>>> blockMap;
-    public static Map<TagKey<Item>, Set<TagKey<Block>>> getBlockMap() {return blockMap;}
+    private static Map<Item, Set<TagKey<Item>>> itemMap;
+    public static Map<Item, Set<TagKey<Item>>> getItemMap() {return itemMap;}
+    private static Map<Item, Set<TagKey<Block>>> blockMap;
+    public static Map<Item, Set<TagKey<Block>>> getBlockMap() {return blockMap;}
 
     private static Set<TagKey<Item>> tagSet;
     public static void tagSet(Set<TagKey<Item>> setter) {tagSet = setter;}
 
     public static void generateAUTagMaps() {
         assert tagSet != null;
-        final Map<TagKey<Item>, Set<TagKey<Item>>> tagItemMap = new HashMap<>();
-        final Map<TagKey<Item>, Set<TagKey<Block>>> tagBlockMap = new HashMap<>();
+        final Map<Item, Set<TagKey<Item>>> tagItemMap = new HashMap<>();
+        final Map<Item, Set<TagKey<Block>>> tagBlockMap = new HashMap<>();
 
         for (TagKey<Item> key : tagSet) {
             final Item preferredItem = AlmostUnifiedLookupWrapper.getPreferredItemForTag(key);
@@ -41,8 +40,8 @@ public class TagStreamGenerators {
                     .<TagKey<Block>>mapMulti(((item, tagKeyConsumer) -> TagReference.getBlockTagStreamFromItem(item).forEach(tagKeyConsumer)))
                     .collect(Collectors.toSet());
 
-            tagItemMap.put(key, inheritedItemSet);
-            tagBlockMap.put(key, inheritedBlockSet);
+            tagItemMap.put(preferredItem, inheritedItemSet);
+            tagBlockMap.put(preferredItem, inheritedBlockSet);
         }
 
         itemMap = tagItemMap;
