@@ -4,7 +4,9 @@ import com.kawaiicakes.almosttagged.config.ConfigBuilder;
 import com.kawaiicakes.almosttagged.config.ConfigEntries;
 import com.kawaiicakes.almosttagged.tags.TagStreamGenerators;
 import com.mojang.logging.LogUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TagsUpdatedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -13,6 +15,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
@@ -46,7 +49,11 @@ public class AlmostTagged
             final Map<String, Set<String>> blockTagsJsonAU = new HashMap<>();
 
             TagStreamGenerators.getItemMap().forEach((k, v) -> itemTagsJsonAU.put(k.toString(), v.stream().map(TagKey::toString).collect(Collectors.toSet())));
-            TagStreamGenerators.getBlockMap().forEach((k, v) -> blockTagsJsonAU.put(k.toString(), v.stream().map(TagKey::toString).collect(Collectors.toSet())));
+            TagStreamGenerators.getBlockMap().forEach((k, v) -> {
+                if (Block.byItem(k) != ForgeRegistries.BLOCKS.getValue(new ResourceLocation("minecraft:air"))) {
+                    blockTagsJsonAU.put(k.toString(), v.stream().map(TagKey::toString).collect(Collectors.toSet()));
+                }
+            });
 
             if (!(Config.itemTagJsonMap.equals(itemTagsJsonAU) && Config.blockTagJsonMap.equals(blockTagsJsonAU))) {
                 LOGGER.info(MOD_ID + " config is being overwritten!");

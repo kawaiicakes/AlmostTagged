@@ -2,9 +2,11 @@ package com.kawaiicakes.almosttagged.tags;
 
 import com.kawaiicakes.almosttagged.AlmostTagged;
 import com.kawaiicakes.almosttagged.api.AlmostUnifiedLookupWrapper;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,11 +39,14 @@ public class TagStreamGenerators {
 
             final Set<TagKey<Block>> inheritedBlockSet = potentialItems
                     .stream()
+                    .filter(i -> Block.byItem(i) != ForgeRegistries.BLOCKS.getValue(new ResourceLocation("minecraft:air")))
                     .<TagKey<Block>>mapMulti(((item, tagKeyConsumer) -> TagReference.getBlockTagStreamFromItem(item).forEach(tagKeyConsumer)))
                     .collect(Collectors.toSet());
 
             tagItemMap.put(preferredItem, inheritedItemSet);
-            tagBlockMap.put(preferredItem, inheritedBlockSet);
+            if (Block.byItem(preferredItem) != ForgeRegistries.BLOCKS.getValue(new ResourceLocation("minecraft:air"))) {
+                tagBlockMap.put(preferredItem, inheritedBlockSet);
+            }
         }
 
         itemMap = tagItemMap;
