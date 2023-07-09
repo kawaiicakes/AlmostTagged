@@ -20,6 +20,6 @@ public class RecipeManagerMixin {
     //This mixin simply assigns a value to TagStreamGenerators.tagSet while ensuring AU configs have a chance to load first
     @Inject(method = "apply(Ljava/util/Map;Lnet/minecraft/server/packs/resources/ResourceManager;Lnet/minecraft/util/profiling/ProfilerFiller;)V", at = @At("HEAD"))
     private void apply(Map<ResourceLocation, JsonElement> recipes, ResourceManager resourceManager, ProfilerFiller profiler, CallbackInfo ci) {
-        TagStreamGenerators.tagSet(AlmostUnifiedLookupWrapper.getConfiguredTags());
+        TagStreamGenerators.tagSet(AlmostUnifiedLookupWrapper.getConfiguredTags()); //generateAUTags must be called after this is fired, but also after tags load
     }
 }
