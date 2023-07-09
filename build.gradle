@@ -5,7 +5,7 @@ plugins {
     id 'org.spongepowered.mixin' version '0.7.+'
 }
 
-version = '1.0'
+version = '0.1.0'
 group = 'com.kawaiicakes.almosttagged' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'almosttagged'
 
@@ -127,7 +127,7 @@ jar {
         attributes([
                 "Specification-Title"     : "almosttagged",
                 "Specification-Vendor"    : "kawaiicakes",
-                "Specification-Version"   : "0",
+                "Specification-Version"   : "0.1.0",
                 "Implementation-Title"    : project.name,
                 "Implementation-Version"  : project.jar.archiveVersion,
                 "Implementation-Vendor"   : "kawaiicakes",
