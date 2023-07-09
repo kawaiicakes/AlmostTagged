@@ -44,7 +44,7 @@ public class AlmostTagged
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void tagsUpdated(final TagsUpdatedEvent event) { //use different events prn for these purposes
         if (event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD) {
-            TagStreamGenerators.generateAUTagMaps(); //allows tags to load. should be called after tags are fully loaded.
+            TagStreamGenerators.generateAUTagMaps(); //allows tags to load. should be called after tags are fully loaded. (but before our tags are passed to TagLoader)
             final Map<String, Set<String>> itemTagsJsonAU = new HashMap<>();
             final Map<String, Set<String>> blockTagsJsonAU = new HashMap<>();
 
@@ -55,11 +55,16 @@ public class AlmostTagged
                 }
             });
 
+            //this reload criteria needs to be improved. if for some reason tags are removed from something,
+            //this returns as true. this is because the tags in the config are passed to the TagLoader
+            //prior to this being evaluated; meaning it will always be true if no other tags have been
+            //added anywhere. Even then, the 'phantom' tags will remain.
             if (!(Config.itemTagJsonMap.equals(itemTagsJsonAU) && Config.blockTagJsonMap.equals(blockTagsJsonAU))) {
                 LOGGER.info(MOD_ID + " config is being overwritten!");
                 ConfigBuilder.reloadConfig();
 
                 LOGGER.info(MOD_ID + " is forcing a data reload!");
+                //add the reload shit here
             } else {
                 LOGGER.info(MOD_ID + " config matches registered tags.");
             }
