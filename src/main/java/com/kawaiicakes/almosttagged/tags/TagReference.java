@@ -1,10 +1,12 @@
 package com.kawaiicakes.almosttagged.tags;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.tags.ITag;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -12,9 +14,6 @@ import java.util.stream.Stream;
 /*
 VERY crude implementation. Iterating through the entire registry of
 tags seems unideal; and possibly laggy.
-
-Additionally merging these two methods might be more elegant
-of a solution. My concern is readability.
  */
 public class TagReference {
     public static Stream<TagKey<Item>> getItemTagStreamFromItem(Item item) {
@@ -29,5 +28,10 @@ public class TagReference {
                 .stream()
                 .filter(itag -> itag.contains(Block.byItem(item)))
                 .map(ITag::getKey);
+    }
+
+    public static @NotNull ResourceLocation getTagResourceLocationFromString(@NotNull String string) {
+        String location = string.replaceAll(".+/", "").strip().substring(0, string.replaceAll(".+/", "").strip().indexOf("]")).strip();
+        return new ResourceLocation(location);
     }
 }
