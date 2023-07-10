@@ -8,10 +8,11 @@ version="${file.jarVersion}"
 displayName="Almost Tagged"
 displayURL="https://github.com/kawaiicakes/AlmostTagged/"
 logoFile="almosttagged.png"
-credits="Thanks to the Almost Reliable team, ElocinDev for her Json config code, and to Vazkii!"
+credits="Thanks to the Almost Reliable team, ElocinDev for her Json config code, and to Vazkii + wiresegal for their help!"
 authors="kawaiicakes"
 
 description='''
+An addon for Almost Unified letting preferred items inherit tags.
 '''
 
 [[dependencies.almosttagged]]
