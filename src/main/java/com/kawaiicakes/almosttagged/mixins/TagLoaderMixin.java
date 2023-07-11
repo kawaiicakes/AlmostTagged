@@ -1,6 +1,7 @@
 package com.kawaiicakes.almosttagged.mixins;
 
 import com.kawaiicakes.almosttagged.AlmostTagged;
+import com.kawaiicakes.almosttagged.tags.TagMapGenerators;
 import com.kawaiicakes.almosttagged.tags.TagReference;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagLoader;
@@ -27,7 +28,10 @@ public class TagLoaderMixin {
     @SuppressWarnings({"unchecked", "OptionalGetWithoutIsPresent"})
     @Inject(method = "build(Ljava/util/Map;)Ljava/util/Map;", at = @At("RETURN"))
     private <T> void build(Map<ResourceLocation, List<TagLoader.EntryWithSource>> p_203899_, CallbackInfoReturnable<Map<ResourceLocation, Collection<T>>> map) {
-        switch (directory) {
+        TagMapGenerators.generatePreferredTMaps(map);
+        AlmostTagged.LOGGER.info(TagMapGenerators.getItemTagMap().toString());
+        /*
+        This will do nicely lol         switch (directory) {
             case "tags/items":
                 AlmostTagged.Config.itemTagJsonMap.forEach((k, v) -> v.forEach(stringTag ->
                         map.getReturnValue().put(TagReference.getTagResourceLocationFromString(stringTag),
@@ -41,5 +45,6 @@ public class TagLoaderMixin {
                 AlmostTagged.LOGGER.info("Almost Tagged has successfully inherited block tags.");
                 break;
         }
+         */
     }
 }
