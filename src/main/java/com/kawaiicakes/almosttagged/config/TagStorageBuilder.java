@@ -17,19 +17,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 
-public class ConfigBuilder {
+public class TagStorageBuilder {
     public static final Gson BUILDER = (new GsonBuilder()).setPrettyPrinting().create();
 
-    public static final Path file = FMLPaths.GAMEDIR.get().toAbsolutePath().resolve("config").resolve("almosttagged.json");
+    public static final Path file = FMLPaths.GAMEDIR.get().toAbsolutePath().resolve("config").resolve("almostunified").resolve("tagstorage.json");
 
-    public static ConfigEntries loadConfig() {
+    public static TagStorageEntries loadConfig() {
         //write, then reload if tags in config do not match the tagMaps in TagStreamGenerators.
         //this means a reload will always occur on first loading of a world since the config will be compared against null.
         //therefore consider moving this functionality into TagLoaderMixin and instead affirming #loadConfig as purely
-        //reading the config. Reload functionality should occur prior to the passing of tags to the TagLoader.
+        //reading the config. Reload functionality should occur prior to the passing of tags to the TagLoaderTranslator.
         try {
             if (Files.notExists(file)) {
-                ConfigEntries atConfig = new ConfigEntries();
+                TagStorageEntries atConfig = new TagStorageEntries();
 
                 final Set<String> initialItemSet = new HashSet<>();
                 final Set<String> initialBlockSet = new HashSet<>();
@@ -40,11 +40,11 @@ public class ConfigBuilder {
                 atConfig.itemTagJsonMap.put("air", initialItemSet);
                 atConfig.blockTagJsonMap.put("air", initialBlockSet);
 
-                String defaultJson = BUILDER.toJson(atConfig, new TypeToken<ConfigEntries>(){}.getType());
+                String defaultJson = BUILDER.toJson(atConfig, new TypeToken<TagStorageEntries>(){}.getType());
                 Files.writeString(file, defaultJson);
             }
 
-            return BUILDER.fromJson(Files.readString(file), ConfigEntries.class);
+            return BUILDER.fromJson(Files.readString(file), TagStorageEntries.class);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -53,7 +53,7 @@ public class ConfigBuilder {
 
     public static void reloadConfig() {
         try {
-            ConfigEntries atConfig = new ConfigEntries();
+            TagStorageEntries atConfig = new TagStorageEntries();
 
             final Map<String, Set<String>> itemStringMap = new HashMap<>();
             final Map<String, Set<String>> blockStringMap = new HashMap<>();
@@ -67,7 +67,6 @@ public class ConfigBuilder {
 
             String defaultJson = BUILDER.toJson(atConfig);
             Files.writeString(file, defaultJson);
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
