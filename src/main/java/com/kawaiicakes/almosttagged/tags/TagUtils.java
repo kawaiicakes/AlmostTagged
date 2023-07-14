@@ -8,14 +8,17 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.tags.ITag;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /*
 VERY crude implementation. Iterating through the entire registry of
 tags seems unideal; and possibly laggy.
  */
-public class TagReference {
+public class TagUtils {
     public static Stream<TagKey<Item>> getItemTagStreamFromItem(Item item) {
         return Objects.requireNonNull(ForgeRegistries.ITEMS.tags())
                 .stream()
@@ -34,4 +37,13 @@ public class TagReference {
         String location = string.replaceAll(".+/", "").strip().substring(0, string.replaceAll(".+/", "").strip().indexOf("]")).strip();
         return new ResourceLocation(location);
     }
+
+    public static @NotNull TagKey<Item> getItemTagKeyFromResource(ResourceLocation location) {
+        return new TagKey<>(ForgeRegistries.ITEMS.getRegistryKey(), location);
+    }
+
+    public static @NotNull TagKey<Block> getBlockTagKeyFromResource(ResourceLocation location) {
+        return new TagKey<>(ForgeRegistries.BLOCKS.getRegistryKey(), location);
+    }
+
 }
