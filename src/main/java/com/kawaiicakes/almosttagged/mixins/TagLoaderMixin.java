@@ -1,7 +1,6 @@
 package com.kawaiicakes.almosttagged.mixins;
 
-import com.kawaiicakes.almosttagged.AlmostTagged;
-import com.kawaiicakes.almosttagged.tags.TagLoaderTranslator;
+import com.kawaiicakes.almosttagged.api.TagLoaderAPI;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagLoader;
 import org.spongepowered.asm.mixin.Final;
@@ -22,11 +21,15 @@ public class TagLoaderMixin {
     @Shadow
     private String directory;
 
+    //For future reference:
+    //By the time #build is called, Almost Unified has already unified items.
+    //Datapack tags also seem to have loaded in. These behaviours are desired.
     @Inject(method = "build(Ljava/util/Map;)Ljava/util/Map;", at = @At("RETURN"))
     private <T> void build(Map<ResourceLocation, List<TagLoader.EntryWithSource>> p_203899_, CallbackInfoReturnable<Map<ResourceLocation, Collection<T>>> map) {
-        if (directory.equals("tags/items") || directory.equals("tags/blocks")) {
-            AlmostTagged.LOGGER.info("Json String for " + directory + ": " + TagLoaderTranslator.loaderReturnJsonStr(map));
-            TagLoaderTranslator.modifyReturn(map, directory);
+        if (directory.equals("tags/items")) {
+            TagLoaderAPI.modifyReturn(map, directory);
+        } else if (directory.equals("tags/blocks")) {
+            TagLoaderAPI.modifyReturn(map, directory);
         }
     }
 }
