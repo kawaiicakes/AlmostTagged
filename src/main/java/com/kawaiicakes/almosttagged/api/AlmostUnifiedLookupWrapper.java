@@ -5,6 +5,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.Set;
@@ -51,11 +52,11 @@ public class AlmostUnifiedLookupWrapper {
             return AlmostUnifiedLookup.INSTANCE.getPreferredItemForTag(tag);
         }
 
-        private static Set<Item> getPotentialItems(TagKey<Item> key) {
+        private static @NotNull Set<Item> getPotentialItems(TagKey<Item> key) {
             return AlmostUnifiedLookup.INSTANCE.getPotentialItems(key);
         }
 
-        private static Set<TagKey<Item>> getConfiguredTags() {
+        private static @NotNull Set<TagKey<Item>> getConfiguredTags() {
             return AlmostUnifiedLookup.INSTANCE.getConfiguredTags();
         }
     }
