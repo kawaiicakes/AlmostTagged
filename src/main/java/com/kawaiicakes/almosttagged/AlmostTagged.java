@@ -2,7 +2,7 @@ package com.kawaiicakes.almosttagged;
 
 import com.kawaiicakes.almosttagged.config.TagStorageBuilder;
 import com.kawaiicakes.almosttagged.config.TagStorageEntries;
-import com.kawaiicakes.almosttagged.tags.TagStreamGenerators;
+import com.kawaiicakes.almosttagged.tags.TagCollections;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -44,19 +44,20 @@ public class AlmostTagged
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void tagsUpdated(final TagsUpdatedEvent event) { //use different events prn for these purposes
         if (event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD) {
-            TagStreamGenerators.generateAUTagMaps(); //allows tags to load. should be called after tags are fully loaded. (but before our tags are passed to TagLoaderTranslator)
+            TagCollections.generateAUTagMaps(); //allows tags to load. should be called after tags are fully loaded. (but before our tags are passed to TagLoaderAPI)
+            //registry + holder values are loaded past this line.
             final Map<String, Set<String>> itemTagsJson = new HashMap<>();
             final Map<String, Set<String>> blockTagsJson = new HashMap<>();
 
-            TagStreamGenerators.getItemMap().forEach((k, v) -> itemTagsJson.put(k.toString(), v.stream().map(TagKey::toString).collect(Collectors.toSet())));
-            TagStreamGenerators.getBlockMap().forEach((k, v) -> {
+            TagCollections.getItemMap().forEach((k, v) -> itemTagsJson.put(k.toString(), v.stream().map(TagKey::toString).collect(Collectors.toSet())));
+            TagCollections.getBlockMap().forEach((k, v) -> {
                 if (Block.byItem(k) != ForgeRegistries.BLOCKS.getValue(new ResourceLocation("minecraft:air"))) {
                     blockTagsJson.put(k.toString(), v.stream().map(TagKey::toString).collect(Collectors.toSet()));
                 }
             }); //replace this block with the returns from #loaderReturnJsonStr
 
             //this reload criteria needs to be improved. if for some reason tags are removed from something,
-            //this returns as true. this is because the tags in the config are passed to the TagLoaderTranslator
+            //this returns as true. this is because the tags in the config are passed to the TagLoaderAPI
             //prior to this being evaluated; meaning it will always be true if no other tags have been
             //added anywhere. Even then, the 'phantom' tags will remain.
             if (!(Config.itemTagJsonMap.equals(itemTagsJson) && Config.blockTagJsonMap.equals(blockTagsJson))) {
