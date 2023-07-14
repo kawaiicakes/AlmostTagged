@@ -1,6 +1,8 @@
 package com.kawaiicakes.almosttagged.api;
 
+import com.almostreliable.unified.api.AlmostUnifiedLookup;
 import com.kawaiicakes.almosttagged.AlmostTagged;
+import com.kawaiicakes.almosttagged.tags.TagCollections;
 import com.kawaiicakes.almosttagged.tags.TagUtils;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -42,6 +44,34 @@ public class TagLoaderAPI {
         }
     }
 
+    //This should only be called *after* AULookup is available.
+    //Wait a sec... I could just copy the code from TagCollections and massage it into working here...
+    public static void getTagsByPreferredItem(Map<Item, Set<TagKey<Item>>> itemReturnMap, Map<Block, Set<TagKey<Block>>> blockReturnMap) {
+        TagCollections.getTagSet().forEach(key -> {
+           final Item pref = AlmostUnifiedLookup.INSTANCE.getPreferredItemForTag(key);
+           final Set<TagKey<Item>> tags = AlmostUnifiedLookup.INSTANCE.getPotentialItems(key)
+                   .stream()
+                   .<TagKey<Item>>mapMulti(((item, objectConsumer) ->
+                           TagLoaderAPI.returnTagsOnItem(item.toString()).forEach(objectConsumer)))
+                   .collect(Collectors.toSet());
+
+           itemReturnMap.put(pref, tags);
+
+           if (Block.byItem(pref) != ForgeRegistries.BLOCKS.getValue(new ResourceLocation("minecraft:air"))) {
+               final Set<TagKey<Block>> tagsBlock = AlmostUnifiedLookup.INSTANCE.getPotentialItems(key)
+                       .stream()
+                       .<TagKey<Block>>mapMulti(((item, objectConsumer) -> {
+                           if (Block.byItem(item) != ForgeRegistries.BLOCKS.getValue(new ResourceLocation("minecraft:air"))) {
+                               TagLoaderAPI.returnTagsOnBlock(Block.byItem(item).toString()).forEach(objectConsumer);
+                           }
+                       }))
+                       .collect(Collectors.toSet());
+
+               if (!tagsBlock.isEmpty()) blockReturnMap.put(Block.byItem(pref), tagsBlock);
+           }
+        });
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> @NotNull Map<String, Set<String>> loaderReturnJsonStr(@NotNull CallbackInfoReturnable<Map<ResourceLocation, Collection<T>>> map) {
         final Map<String, Set<String>> returnMap = new HashMap<>();
@@ -66,6 +96,8 @@ public class TagLoaderAPI {
                 .<TagKey<Item>>mapMulti(Iterable::forEach)
                 .collect(Collectors.toSet());
     }
+
+    //The reason a String is used as an arg as opposed to an Item is because I don't think IForgeRegistry is available yet
 
     //This method is necessary as both Holders and Registries are still null by the time this return is needed.
     //Basically just like obtaining the tags on a block via ITagManager before it's loaded (and before tags are inherited)
