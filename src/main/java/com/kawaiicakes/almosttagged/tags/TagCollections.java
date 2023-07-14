@@ -7,11 +7,13 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class TagStreamGenerators {
+public class TagCollections {
     private static Map<Item, Set<TagKey<Item>>> itemMap;
     public static Map<Item, Set<TagKey<Item>>> getItemMap() {return itemMap;}
     private static Map<Item, Set<TagKey<Block>>> blockMap;
@@ -19,6 +21,7 @@ public class TagStreamGenerators {
 
     private static Set<TagKey<Item>> tagSet;
     public static void tagSet(Set<TagKey<Item>> setter) {tagSet = setter;}
+    public static Set<TagKey<Item>> getTagSet() {return tagSet;}
 
     public static void generateAUTagMaps() {
         assert tagSet != null;
@@ -34,13 +37,13 @@ public class TagStreamGenerators {
 
             final Set<TagKey<Item>> inheritedItemSet = potentialItems
                     .stream()
-                    .<TagKey<Item>>mapMulti(((item, tagKeyConsumer) -> TagReference.getItemTagStreamFromItem(item).forEach(tagKeyConsumer)))
+                    .<TagKey<Item>>mapMulti(((item, tagKeyConsumer) -> TagUtils.getItemTagStreamFromItem(item).forEach(tagKeyConsumer)))
                     .collect(Collectors.toSet());
 
             final Set<TagKey<Block>> inheritedBlockSet = potentialItems
                     .stream()
                     .filter(i -> Block.byItem(i) != ForgeRegistries.BLOCKS.getValue(new ResourceLocation("minecraft:air")))
-                    .<TagKey<Block>>mapMulti(((item, tagKeyConsumer) -> TagReference.getBlockTagStreamFromItem(item).forEach(tagKeyConsumer)))
+                    .<TagKey<Block>>mapMulti(((item, tagKeyConsumer) -> TagUtils.getBlockTagStreamFromItem(item).forEach(tagKeyConsumer)))
                     .collect(Collectors.toSet());
 
             tagItemMap.put(preferredItem, inheritedItemSet);
@@ -51,6 +54,7 @@ public class TagStreamGenerators {
 
         itemMap = tagItemMap;
         blockMap = tagBlockMap;
+
         AlmostTagged.LOGGER.info(tagItemMap.toString());
         AlmostTagged.LOGGER.info(tagBlockMap.toString());
     }
