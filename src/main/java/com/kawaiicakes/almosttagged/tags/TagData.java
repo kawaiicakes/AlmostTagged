@@ -1,13 +1,14 @@
 package com.kawaiicakes.almosttagged.tags;
 
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * This class is intended to be used to efficiently interact with the tags returned in the map of
@@ -17,19 +18,37 @@ import java.util.Set;
  * These keys represent a distinct tag in <code>IForgeRegistry</code> of type <code>V</code>, and
  * whose values represent the instances of <code>V</code> subtyping <code>ItemLike</code> assigned to that
  * tag.
- * @param <V>   the object subclassed by <code>ItemLike</code>; intended to be either <code>Item</code>
- *              or <code>Block</code>.
+ * @param <V>   the object type; usually intended to be either <code>Item</code>
+ *              or <code>Block</code> (or more specifically the type parameter of <code>Holder.Reference&lt;V&gt;</code>).
  */
-public class TagData<V extends ItemLike> implements Map<ResourceLocation, Collection<V>> {
+public class TagData<V> implements Map<ResourceLocation, Collection<Holder.Reference<V>>> {
 
-    private final Map<ResourceLocation, Collection<V>> data;
+    private final Map<ResourceLocation, Collection<Holder.Reference<V>>> data;
 
     public TagData() {
-        this.data = null;
+        this.data = new HashMap<>();
+    }
+    public TagData(Map<ResourceLocation, Collection<Holder.Reference<V>>> data) {
+        this.data = data;
     }
 
-    public TagData(Map<ResourceLocation, Collection<V>> data) {
-        this.data = data;
+    public Map<ResourceLocation, Collection<Holder.Reference<V>>> getData() {return this.data;}
+
+    public Stream<TagKey<?>> getTags(V v) {
+        return this.entrySet().stream()
+                .filter(entry -> entry.getValue().contains(v))
+                .mapMulti((entry, consumer) -> {
+                    if (v.getClass() == Item.class) {
+                        consumer.accept(TagUtils.getItemTagKeyFromResource(entry.getKey()));
+                    } else {
+                        consumer.accept(TagUtils.getBlockTagKeyFromResource(entry.getKey()));
+                    }
+                });
+    }
+
+    @Nullable
+    public Stream<?> get(ResourceLocation resourceLocation) {
+        return this.data.get(resourceLocation).stream().map(e -> ((Holder.Reference<?>) e).get());
     }
 
     @Override
@@ -39,60 +58,60 @@ public class TagData<V extends ItemLike> implements Map<ResourceLocation, Collec
 
     @Override
     public boolean isEmpty() {
-        return false;
+        return this.data.isEmpty();
     }
 
     @Override
-    public boolean containsKey(Object key) {
-        return false;
+    public boolean containsKey(Object resourceLocation) {
+        return this.data.containsKey(resourceLocation);
     }
 
     @Override
     public boolean containsValue(Object value) {
-        return false;
+        return this.data.containsValue(value);
     }
 
     @Override
-    public Collection<V> get(Object key) {
-        return null;
+    public Collection<Holder.Reference<V>> get(Object key) {
+        return this.data.get(key);
     }
 
     @Nullable
     @Override
-    public Collection<V> put(ResourceLocation key, Collection<V> value) {
-        return null;
+    public Collection<Holder.Reference<V>> put(ResourceLocation key, Collection<Holder.Reference<V>> value) {
+        return this.data.put(key, value);
     }
 
     @Override
-    public Collection<V> remove(Object key) {
-        return null;
+    public Collection<Holder.Reference<V>> remove(Object key) {
+        return this.data.remove(key);
     }
 
     @Override
-    public void putAll(@NotNull Map<? extends ResourceLocation, ? extends Collection<V>> m) {
-
+    public void putAll(@NotNull Map<? extends ResourceLocation, ? extends Collection<Holder.Reference<V>>> m) {
+        this.data.putAll(m);
     }
 
     @Override
     public void clear() {
-
+        this.data.clear();
     }
 
     @NotNull
     @Override
     public Set<ResourceLocation> keySet() {
-        return null;
+        return this.data.keySet();
     }
 
     @NotNull
     @Override
-    public Collection<Collection<V>> values() {
-        return null;
+    public Collection<Collection<Holder.Reference<V>>> values() {
+        return this.data.values();
     }
 
     @NotNull
     @Override
-    public Set<Entry<ResourceLocation, Collection<V>>> entrySet() {
-        return null;
+    public Set<Entry<ResourceLocation, Collection<Holder.Reference<V>>>> entrySet() {
+        return this.data.entrySet();
     }
 }
