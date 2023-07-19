@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * This class is intended to be used to efficiently interact with the tags returned in the map of
+ * This record is intended to be used to efficiently interact with the tags returned in the map of
  * <code>TagLoader#build</code>. This map contains keys of type <code>ResourceLocation</code> and
  * values of <code>Collection</code>s of type <code>V</code>.
  * <p>
@@ -27,18 +27,12 @@ import java.util.stream.Stream;
  * as <code>T</code>. This may get confusing when considering that <code>TagKey</code>s share <code>T</code>
  * as a type parameter; <code>V extends ItemLike</code> is false whereas <code>T extends ItemLike</code> is true.
  * Maybe this only confused me because I'm still relatively inexperienced lol.
- * @param <V>   the type parameter; intended to be some instance of <code>Holder.Reference&lt;T&gt;</code>).
+ *
+ * @param <V>  the type parameter; intended to be some instance of <code>Holder.Reference&lt;T&gt;</code>).
+ * @param data This field is simply the data, specifically the map, contained in <code>this</code>>
+ *             instance of the object.
  */
-public class TagData<V> implements Map<ResourceLocation, Collection<V>>  {
-
-    /**
-     * This field is simply the data, specifically the map, contained in <code>this</code>>
-     * instance of the object.
-     */
-    private final Map<ResourceLocation, Collection<V>> data;
-    public TagData(Map<ResourceLocation, Collection<V>> data) {this.data = data;}
-
-    public Map<ResourceLocation, Collection<V>> getData() {return this.data;}
+public record TagData<V>(Map<ResourceLocation, Collection<V>> data) implements Map<ResourceLocation, Collection<V>> {
 
     /**
      * Method used to return information regarding what tags are to be bound to an instance of <code>V</code>. In practice this
