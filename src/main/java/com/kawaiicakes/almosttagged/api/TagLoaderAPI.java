@@ -2,6 +2,8 @@ package com.kawaiicakes.almosttagged.api;
 
 import com.almostreliable.unified.AlmostUnified;
 import com.almostreliable.unified.api.AlmostUnifiedLookup;
+import com.kawaiicakes.almosttagged.AlmostTagged;
+import com.kawaiicakes.almosttagged.config.ConfigData;
 import com.kawaiicakes.almosttagged.tags.TagData;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -16,11 +18,15 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.kawaiicakes.almosttagged.AlmostTagged.Config;
+
 /**
  * This class is made to allow simpler interaction with the tags from <code>TagLoader</code>,
  * whose data is instantiated in <code>TagData&lt;V&gt;</code>.
  */
 public class TagLoaderAPI {
+    private static final ConfigData itemBlacklist = new ConfigData(Config.itemBlacklist);
+    private static final ConfigData blockBlacklist = new ConfigData(Config.blockBlacklist);
 
     private static TagData<Holder.Reference<Item>> itemTagData; //these work and return tags loading onto stuff including from datapack edits
     @SuppressWarnings("unchecked")
@@ -50,14 +56,17 @@ public class TagLoaderAPI {
         final AlmostUnifiedLookup INST = AlmostUnifiedLookup.INSTANCE;
         final Block AIR = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("minecraft:air"));
 
+        (new ConfigData(Config.itemTagBlacklist)).inverseToTarget(itemBlacklist);
+        (new ConfigData(Config.blockTagBlacklist)).inverseToTarget(blockBlacklist);
+
         for (TagKey<Item> tag : INST.getConfiguredTags()) {
             Holder.Reference<Item> preferredItemHolder = Objects.requireNonNull(INST.getPreferredItemForTag(tag))
                     .builtInRegistryHolder(); //Item#builtInRegistryHolder is deprecated but whatever lmao (Block too)
 
             INST.getPotentialItems(tag)
                     .stream()
-                    .<TagKey<?>>mapMulti((item, consumer) -> itemTagData.getTags(item.builtInRegistryHolder())
-                            .forEach(consumer))
+                    .<TagKey<?>>mapMulti((item, consumer) -> itemBlacklist
+                            .filter(itemTagData, item.builtInRegistryHolder(), consumer))
                     .map(TagKey::location)
                     .forEach(resourceLocation -> itemTagData.add(resourceLocation, preferredItemHolder));
 
@@ -73,15 +82,25 @@ public class TagLoaderAPI {
                                 consumer.accept(Block.byItem(item));
                             }
                         })
-                        .<TagKey<?>>mapMulti((block, consumer) -> blockTagData.getTags(block.builtInRegistryHolder())
-                                .forEach(consumer))
+                        .<TagKey<?>>mapMulti((block, consumer) -> blockBlacklist
+                                .filter(blockTagData, block.builtInRegistryHolder(), consumer))
                         .map(TagKey::location)
                         .forEach(resourceLocation -> blockTagData.add(resourceLocation, preferredBlockHolder));
             }
         }
 
-        itemTagData.print();
+        itemTagData.print(); //for debug purposes only
         blockTagData.print();
+
+        itemBlacklist.forEach((key, value) -> {
+            AlmostTagged.LOGGER.info(key);
+            AlmostTagged.LOGGER.info(value.toString());
+        });
+
+        blockBlacklist.forEach((key, value) -> {
+            AlmostTagged.LOGGER.info(key);
+            AlmostTagged.LOGGER.info(value.toString());
+        });
     }
 
     public static <T> void modifyReturn(CallbackInfoReturnable<Map<ResourceLocation, Collection<T>>> map,
