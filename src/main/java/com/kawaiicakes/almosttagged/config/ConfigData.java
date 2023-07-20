@@ -11,18 +11,55 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+/**
+ * This record contains data loaded from each <code>TagConfigEntries</code>. Its purpose is to permit
+ * easier operation and reference of this data, including remapping functions. It is intended that
+ * there is one instance of <code>ConfigData</code> per field in <code>TagConfigEntries</code>.
+ *
+ * @param data  a <code>Map&lt;String, Set&lt;String&gt;&gt;</code> containing data from the config.
+ */
 public record ConfigData(Map<String, Set<String>> data) implements Map<String, Set<String>>{
-    public <V> void filter(@NotNull TagData<V> vTagData, @NotNull V v, Consumer<TagKey<?>> consumer) {
-        if (this.containsKey(((Holder.Reference<?>) v).get().toString())) {
-            vTagData.getTags(v)
-                    .filter(i -> !Objects.requireNonNull(this.get(((Holder.Reference<?>) v).get()
-                            .toString())).contains(i.toString()))
+
+    /**
+     * <code>#strainer</code> is meant to be used in the context of a <code>mapMulti</code> operation.
+     * Its purpose is to selectively pass <code>TagKey&lt;?&gt;</code>s to the <code>Consumer</code>
+     * based on criteria defined by the blacklisted objects in the config.
+     * <p>
+     * The <code>Consumer</code> accepts tags from <code>vTagData#getTags</code> as if this instance
+     * of <code>ConfigData</code> does not contain key of instance <code>V</code>. It also accepts tags selectively
+     * from <code>vTagData</code> otherwise, provided that the specific tag does not match a blacklisted
+     * tag for the key of instance <code>V</code> in the config.
+     *
+     * @param vTagData  the <code>TagData</code> representing all tags and their bindings for <code>V</code>.
+     * @param vHolder   an instance of <code>V</code>. Will always be a <code>Holder.Reference&lt;?&gt;</code>
+     * @param consumer  the <code>Consumer</code> accepting <code>TagKey&lt;?&gt;</code>s.
+     * @param <V>       an instance of <code>Holder.Reference&lt;?&gt;</code>.
+     */
+    public <V> void strainer(@NotNull TagData<V> vTagData, @NotNull V vHolder, Consumer<TagKey<?>> consumer) {
+        if (this.containsKey(((Holder.Reference<?>) vHolder).get().toString())) {
+            if (Objects.requireNonNull(this.get(vHolder)).isEmpty()) return;
+            vTagData.getTags(vHolder)
+                    .filter(i -> !Objects.requireNonNull(this
+                            .get(((Holder.Reference<?>) vHolder).get().toString())).contains(i.toString()))
                     .forEach(consumer);
-        } else if (!this.containsKey(((Holder.Reference<?>) v).get().toString())) {
-            vTagData.getTags(v).forEach(consumer);
+        } else if (!this.containsKey(((Holder.Reference<?>) vHolder).get().toString())) {
+            vTagData.getTags(vHolder).forEach(consumer);
         }
     }
 
+    /**
+     * Intended to be used on instances of <code>ConfigData</code> which represent the itemTagBlacklist and
+     * blockTagBlacklist fields in <code>TagConfigEntries</code>.
+     * <p>
+     * This method's function simply inverts the mappings in this object. More formally, for the data
+     * <code>Map&lt;K, Set&lt;V&gt;&gt;</code> of this object, the data is remapped to
+     * <code>Map&lt;V, Set&lt;K&gt;&gt;</code>; such that all occurrences of <code>K</code> in which
+     * <code>V</code> appears are returned as a <code>Set&lt;K&gt;</code>.
+     * <p>
+     * The resulting 'inverse' map is then merged with <code>target</code> using <code>#merge</code>.
+     *
+     * @param target    the target <code>ConfigData</code> to which this object's inverted mapping will be pushed.
+     */
     public void inverseToTarget(@NotNull ConfigData target) {
         ConfigData inverseMap = new ConfigData(new HashMap<>());
 
@@ -34,10 +71,16 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
                         .map(Entry::getKey)
                         .collect(Collectors.toSet())));
 
-        target.concat(inverseMap);
+        target.merge(inverseMap);
     }
 
-    public void concat(@NotNull ConfigData pData) {
+    /**
+     * Method purposed for non-destructively appending keys and values to this object. If a key exists in both
+     * this and <code>pData</code>, then the corresponding value in <code>pData</code> is iterated over
+     * and its elements are added to the <code>Set&lt;String&gt;</code> in this object.
+     * @param pData     the <code>ConfigData</code> to be merged with this object.
+     */
+    public void merge(@NotNull ConfigData pData) {
         pData.forEach((key, value) -> {
             if (this.containsKey(key)) {
                 Objects.requireNonNull(pData.get(key)).forEach(Objects.requireNonNull(this.get(key))::add);
@@ -47,6 +90,9 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
         });
     }
 
+    /**
+     * Debug method intended to log this data. For dev use. Should be self-explanatory.
+     */
     public void print() {
         AlmostTagged.LOGGER.info("******");
         AlmostTagged.LOGGER.info("ConfigData of " + this);

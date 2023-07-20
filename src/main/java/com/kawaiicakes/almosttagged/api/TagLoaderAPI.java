@@ -20,8 +20,9 @@ import java.util.Objects;
 import static com.kawaiicakes.almosttagged.AlmostTagged.Config;
 
 /**
- * This class is made to allow simpler interaction with the tags from <code>TagLoader</code>,
- * whose data is instantiated in <code>TagData&lt;V&gt;</code>.
+ * This class is the main interaction point of this mod with the tags from <code>TagLoader</code>,
+ * whose data is instantiated in instances of <code>TagData&lt;V&gt;</code>. All overarching operations
+ * which perform the unification of tags are likely to be found here.
  */
 public class TagLoaderAPI {
     private static final ConfigData itemBlacklist = new ConfigData(Config.itemBlacklist);
@@ -37,8 +38,8 @@ public class TagLoaderAPI {
 
     /**
      * This is by far the longest and most complex method in the entire module. In spite of that,
-     * it's not actually *that* bad. When <code>#unifyTags</code> is called, the <code>itemTagData</code>
-     * and <code>blockTagData</code> fields are modified.
+     * it's not actually *that* bad despite being an eyesore. When <code>#unifyTags</code> is called,
+     * the <code>itemTagData</code> and <code>blockTagData</code> fields are modified.
      * <p>
      * These modifications require <code>AlmostUnified#isRuntimeLoaded</code> to be <code>true</code> as
      * many of the necessary calls to the Almost Unified API will not function if the AU runtime is not
@@ -65,7 +66,7 @@ public class TagLoaderAPI {
             INST.getPotentialItems(tag)
                     .stream()
                     .<TagKey<?>>mapMulti((item, consumer) -> itemBlacklist
-                            .filter(itemTagData, item.builtInRegistryHolder(), consumer))
+                            .strainer(itemTagData, item.builtInRegistryHolder(), consumer))
                     .map(TagKey::location)
                     .forEach(resourceLocation -> itemTagData.add(resourceLocation, preferredItemHolder));
 
@@ -82,13 +83,13 @@ public class TagLoaderAPI {
                             }
                         })
                         .<TagKey<?>>mapMulti((block, consumer) -> blockBlacklist
-                                .filter(blockTagData, block.builtInRegistryHolder(), consumer))
+                                .strainer(blockTagData, block.builtInRegistryHolder(), consumer))
                         .map(TagKey::location)
                         .forEach(resourceLocation -> blockTagData.add(resourceLocation, preferredBlockHolder));
             }
         }
 
-        itemBlacklist.print();
+        itemBlacklist.print(); //debug purposes.
         blockBlacklist.print();
     }
 
