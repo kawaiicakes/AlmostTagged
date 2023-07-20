@@ -37,11 +37,11 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
     }
 
     public void concat(@NotNull ConfigData pData) {
-        this.forEach((key, value) -> {
-            if (pData.containsKey(key)) { //this is also likely to be laggy. optimize.
-                value.addAll(Objects.requireNonNull(pData.get(key)));
+        pData.forEach((key, value) -> {
+            if (this.containsKey(key)) {
+                Objects.requireNonNull(pData.get(key)).forEach(Objects.requireNonNull(this.get(key))::add);
             } else {
-                this.put(key, pData.get(key));
+                this.put(key, value);
             }
         });
     }
