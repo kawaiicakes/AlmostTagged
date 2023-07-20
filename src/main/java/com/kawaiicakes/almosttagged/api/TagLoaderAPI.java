@@ -2,7 +2,6 @@ package com.kawaiicakes.almosttagged.api;
 
 import com.almostreliable.unified.AlmostUnified;
 import com.almostreliable.unified.api.AlmostUnifiedLookup;
-import com.kawaiicakes.almosttagged.AlmostTagged;
 import com.kawaiicakes.almosttagged.config.ConfigData;
 import com.kawaiicakes.almosttagged.tags.TagData;
 import net.minecraft.core.Holder;
@@ -89,18 +88,8 @@ public class TagLoaderAPI {
             }
         }
 
-        itemTagData.print(); //for debug purposes only
-        blockTagData.print();
-
-        itemBlacklist.forEach((key, value) -> {
-            AlmostTagged.LOGGER.info(key);
-            AlmostTagged.LOGGER.info(value.toString());
-        });
-
-        blockBlacklist.forEach((key, value) -> {
-            AlmostTagged.LOGGER.info(key);
-            AlmostTagged.LOGGER.info(value.toString());
-        });
+        itemBlacklist.print();
+        blockBlacklist.print();
     }
 
     public static <T> void modifyReturn(CallbackInfoReturnable<Map<ResourceLocation, Collection<T>>> map,

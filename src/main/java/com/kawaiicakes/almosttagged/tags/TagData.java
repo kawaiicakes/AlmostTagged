@@ -65,10 +65,13 @@ public record TagData<V>(Map<ResourceLocation, Collection<V>> data) implements M
                 printMap.put(((Holder.Reference<?>) t).get().toString(), getTags(t).map(TagKey::toString)
                         .collect(Collectors.toSet())));
 
+        AlmostTagged.LOGGER.info("******");
+        AlmostTagged.LOGGER.info("TagData of " + this);
         printMap.forEach((k, v) -> {
             AlmostTagged.LOGGER.info(k);
             AlmostTagged.LOGGER.info(v.toString());
         });
+        AlmostTagged.LOGGER.info("******");
     }
 
     @Override

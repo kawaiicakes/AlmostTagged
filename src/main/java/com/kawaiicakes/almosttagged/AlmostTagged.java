@@ -30,7 +30,7 @@ public class AlmostTagged
     @SubscribeEvent
     public void FMLConstructMod(final FMLConstructModEvent event) { //any event prior to a server load will not have ITagManager ready yet.
         Config = TagConfigBuilder.loadConfig();
-        LOGGER.info(MOD_ID + " configs loaded during FMLConstructModEvent.");
+        LOGGER.info(MOD_ID + " config loaded during FMLConstructModEvent.");
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

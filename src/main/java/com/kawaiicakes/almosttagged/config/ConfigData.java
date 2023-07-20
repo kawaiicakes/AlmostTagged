@@ -1,5 +1,6 @@
 package com.kawaiicakes.almosttagged.config;
 
+import com.kawaiicakes.almosttagged.AlmostTagged;
 import com.kawaiicakes.almosttagged.tags.TagData;
 import net.minecraft.core.Holder;
 import net.minecraft.tags.TagKey;
@@ -44,6 +45,16 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
                 this.put(key, value);
             }
         });
+    }
+
+    public void print() {
+        AlmostTagged.LOGGER.info("******");
+        AlmostTagged.LOGGER.info("ConfigData of " + this);
+        this.forEach((key, value) -> {
+            AlmostTagged.LOGGER.info(key);
+            AlmostTagged.LOGGER.info(value.toString());
+        });
+        AlmostTagged.LOGGER.info("******");
     }
 
     @Override
