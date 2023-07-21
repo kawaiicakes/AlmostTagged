@@ -27,6 +27,8 @@ import static com.kawaiicakes.almosttagged.AlmostTagged.Config;
 public class TagLoaderAPI {
     private static final ConfigData itemBlacklist = new ConfigData(Config.itemBlacklist);
     private static final ConfigData blockBlacklist = new ConfigData(Config.blockBlacklist);
+    private static final ConfigData itemTagBlacklist = new ConfigData(Config.itemTagBlacklist);
+    private static final ConfigData blockTagBlacklist = new ConfigData(Config.blockTagBlacklist);
 
     private static TagData<Holder.Reference<Item>> itemTagData; //these work and return tags loading onto stuff including from datapack edits
     @SuppressWarnings("unchecked")
@@ -56,8 +58,12 @@ public class TagLoaderAPI {
         final AlmostUnifiedLookup INST = AlmostUnifiedLookup.INSTANCE;
         final Block AIR = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("minecraft:air"));
 
-        (new ConfigData(Config.itemTagBlacklist)).inverseToTarget(itemBlacklist);
-        (new ConfigData(Config.blockTagBlacklist)).inverseToTarget(blockBlacklist);
+        /*
+        This 2 method sequence is a cheeky little way to transform the other TagConfigEntries fields into
+        the one I've already coded logic for. It could be called somewhere else but here makes sense to me.
+         */
+        blockTagBlacklist.inverseToTarget(itemBlacklist);
+        itemTagBlacklist.inverseToTarget(blockBlacklist);
 
         for (TagKey<Item> tag : INST.getConfiguredTags()) {
             Holder.Reference<Item> preferredItemHolder = Objects.requireNonNull(INST.getPreferredItemForTag(tag))
@@ -66,7 +72,7 @@ public class TagLoaderAPI {
             INST.getPotentialItems(tag)
                     .stream()
                     .<TagKey<?>>mapMulti((item, consumer) -> itemBlacklist
-                            .strainer(itemTagData, item.builtInRegistryHolder(), consumer))
+                            .strainer(itemTagData, itemTagBlacklist, item.builtInRegistryHolder(), consumer))
                     .map(TagKey::location)
                     .forEach(resourceLocation -> itemTagData.add(resourceLocation, preferredItemHolder));
 
@@ -83,7 +89,7 @@ public class TagLoaderAPI {
                             }
                         })
                         .<TagKey<?>>mapMulti((block, consumer) -> blockBlacklist
-                                .strainer(blockTagData, block.builtInRegistryHolder(), consumer))
+                                .strainer(blockTagData, blockTagBlacklist, block.builtInRegistryHolder(), consumer))
                         .map(TagKey::location)
                         .forEach(resourceLocation -> blockTagData.add(resourceLocation, preferredBlockHolder));
             }

@@ -23,7 +23,8 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
     /**
      * <code>#strainer</code> is meant to be used in the context of a <code>mapMulti</code> operation.
      * Its purpose is to selectively pass <code>TagKey&lt;?&gt;</code>s to the <code>Consumer</code>
-     * based on criteria defined by the blacklisted objects in the config.
+     * based on criteria defined by the blacklisted objects in the config. It is meant to be used on
+     * instances of <code>ConfigData</code> from the item/blockBlacklist fields in <code>TagConfigEntries</code>.
      * <p>
      * The <code>Consumer</code> accepts tags from <code>vTagData#getTags</code> as if this instance
      * of <code>ConfigData</code> does not contain key of instance <code>V</code>. It also accepts tags selectively
@@ -35,15 +36,18 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
      * @param consumer  the <code>Consumer</code> accepting <code>TagKey&lt;?&gt;</code>s.
      * @param <V>       an instance of <code>Holder.Reference&lt;?&gt;</code>.
      */
-    public <V> void strainer(@NotNull TagData<V> vTagData, @NotNull V vHolder, Consumer<TagKey<?>> consumer) {
+    public <V> void strainer(@NotNull TagData<V> vTagData, ConfigData tagBlacklist, @NotNull V vHolder, Consumer<TagKey<?>> consumer) {
         if (this.containsKey(((Holder.Reference<?>) vHolder).get().toString())) {
             if (Objects.requireNonNull(this.get(vHolder)).isEmpty()) return;
             vTagData.getTags(vHolder)
                     .filter(i -> !Objects.requireNonNull(this
-                            .get(((Holder.Reference<?>) vHolder).get().toString())).contains(i.toString()))
+                            .get(((Holder.Reference<?>) vHolder).get().toString())).contains(i.location().toString()))
+                    .filter(i -> !tagBlacklist.containsKey(i.location().toString()))
                     .forEach(consumer);
-        } else if (!this.containsKey(((Holder.Reference<?>) vHolder).get().toString())) {
-            vTagData.getTags(vHolder).forEach(consumer);
+        } else {
+            vTagData.getTags(vHolder)
+                    .filter(i -> !tagBlacklist.containsKey(i.location().toString()))
+                    .forEach(consumer);
         }
     }
 
@@ -54,7 +58,8 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
      * This method's function simply inverts the mappings in this object. More formally, for the data
      * <code>Map&lt;K, Set&lt;V&gt;&gt;</code> of this object, the data is remapped to
      * <code>Map&lt;V, Set&lt;K&gt;&gt;</code>; such that all occurrences of <code>K</code> in which
-     * <code>V</code> appears are returned as a <code>Set&lt;K&gt;</code>.
+     * <code>V</code> appears are returned as a <code>Set&lt;K&gt;</code>. In addition, it checks for
+     * if the target key's <code>Set</code> is empty, in which case it will not merge anything to there.
      * <p>
      * The resulting 'inverse' map is then merged with <code>target</code> using <code>#merge</code>.
      *
@@ -64,13 +69,16 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
         ConfigData inverseMap = new ConfigData(new HashMap<>());
 
         //#distinct is used so that for every Holder.Reference<V>, a value is assigned to it only once.
-        this.values().stream().distinct().<String>mapMulti(Iterable::forEach).forEach(t ->
-                inverseMap.put(t, this.entrySet()
-                        .stream()
-                        .filter(entry -> entry.getValue().contains(t))
-                        .map(Entry::getKey)
-                        .collect(Collectors.toSet())));
-
+        this.values().stream().distinct().<String>mapMulti(Iterable::forEach).forEach(t -> {
+            if (target.containsKey(t)) { //I split conditions to avoid NullPointerExceptions if no such key t exists
+                if (Objects.requireNonNull(target.get(t)).isEmpty()) return;
+            }
+            inverseMap.put(t, this.entrySet()
+                    .stream()
+                    .filter(entry -> entry.getValue().contains(t))
+                    .map(Entry::getKey)
+                    .collect(Collectors.toSet()));
+        });
         target.merge(inverseMap);
     }
 
@@ -95,7 +103,7 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
      */
     public void print() {
         AlmostTagged.LOGGER.info("******");
-        AlmostTagged.LOGGER.info("ConfigData of " + this);
+        AlmostTagged.LOGGER.info("ConfigData of " + this.hashCode());
         this.forEach((key, value) -> {
             AlmostTagged.LOGGER.info(key);
             AlmostTagged.LOGGER.info(value.toString());
