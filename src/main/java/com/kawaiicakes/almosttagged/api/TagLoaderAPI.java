@@ -3,6 +3,7 @@ package com.kawaiicakes.almosttagged.api;
 import com.almostreliable.unified.AlmostUnified;
 import com.almostreliable.unified.api.AlmostUnifiedLookup;
 import com.kawaiicakes.almosttagged.config.ConfigData;
+import com.kawaiicakes.almosttagged.config.DebugDumper;
 import com.kawaiicakes.almosttagged.tags.TagData;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -97,6 +98,9 @@ public class TagLoaderAPI {
 
         itemBlacklist.print(); //debug purposes.
         blockBlacklist.print();
+
+        DebugDumper.dump(itemTagData, DebugDumper.Type.ITEM);
+        DebugDumper.dump(blockTagData, DebugDumper.Type.BLOCK);
     }
 
     public static <T> void modifyReturn(CallbackInfoReturnable<Map<ResourceLocation, Collection<T>>> map,
