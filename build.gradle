@@ -1,13 +1,13 @@
 plugins {
     id 'eclipse'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '5.1.+'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'org.spongepowered.mixin' version '0.7.+'
 }
 
 version = '0.1.0'
 group = 'com.kawaiicakes.almosttagged' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'almosttagged'
+base.archivesName = 'almosttagged'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
