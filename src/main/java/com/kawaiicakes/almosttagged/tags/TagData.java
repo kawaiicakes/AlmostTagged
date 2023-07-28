@@ -68,7 +68,7 @@ public record TagData<V>(Map<ResourceLocation, Collection<V>> data) implements M
     public void add(ResourceLocation resourceLocation, V v) { //this could probably be reworked by letting param 2 accept a collection of holders
         Collection<V> newCol = new ArrayList<>(this.data.get(resourceLocation)); //idk if I like that tho, I'd have to rewrite TagLoaderAPI
         newCol.add(v); //this may run slow. optimize in the future
-        this.data.put(resourceLocation, newCol);
+        this.data.put(resourceLocation, newCol); //wait cant #computeIfAbsent do what this is doing???
     }
 
     public void print(DebugDumper.Type type) {

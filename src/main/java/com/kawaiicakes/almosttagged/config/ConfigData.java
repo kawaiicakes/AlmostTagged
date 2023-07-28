@@ -34,7 +34,7 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
      * from <code>vTagData</code> otherwise, provided that the specific tag does not match a blacklisted
      * tag for the key of instance <code>V</code> in the config.
      *
-     * @param vTagData  the <code>TagData</code> representing all tags and their bindings for <code>V</code>.
+     * @param vTagData  the <code>TagData</code> representing all tags and their bindings for the registry of <code>V</code>.
      * @param vHolder   an instance of <code>V</code>. Will always be a <code>Holder.Reference&lt;?&gt;</code>
      * @param consumer  the <code>Consumer</code> accepting <code>TagKey&lt;?&gt;</code>s.
      * @param <V>       an instance of <code>Holder.Reference&lt;?&gt;</code>.

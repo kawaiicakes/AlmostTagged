@@ -44,7 +44,7 @@ public class TagLoaderAPI {
     public static <V> void setBlockTagData(TagData<V> tagData) {blockTagData = (TagData<Holder.Reference<Block>>) tagData;}
 
     /**
-     * This is by far the longest and most complex method in the entire module. In spite of that,
+     * This is by far the longest and most complex method in the entire mod. In spite of that,
      * it's not actually *that* bad despite being an eyesore. When <code>#unifyTags</code> is called,
      * the <code>itemTagData</code> and <code>blockTagData</code> fields are modified.
      * <p>
@@ -79,10 +79,12 @@ public class TagLoaderAPI {
             INST.getPotentialItems(tag)
                     .stream()
                     .<TagKey<?>>mapMulti((item, consumer) -> itemBlacklist
-                            .strainer(itemTagData, itemTagBlacklist, item.builtInRegistryHolder(), consumer))
+                            .filterBlacklisted(itemTagData, itemTagBlacklist, item.builtInRegistryHolder(), consumer))
+                    .<TagKey<?>>mapMulti((tagInStream, consumer) -> )
                     .map(TagKey::location)
                     .forEach(resourceLocation -> itemTagData.add(resourceLocation, preferredItemHolder));
 
+            //starting on the line below this, same logic as above is executed but slightly changed to handle blocks
             if (Block.byItem(INST.getPreferredItemForTag(tag)) != AIR) {
                 Holder.Reference<Block> preferredBlockHolder = Block.byItem(INST
                                 .getPreferredItemForTag(tag))
@@ -96,7 +98,7 @@ public class TagLoaderAPI {
                             }
                         })
                         .<TagKey<?>>mapMulti((block, consumer) -> blockBlacklist
-                                .strainer(blockTagData, blockTagBlacklist, block.builtInRegistryHolder(), consumer))
+                                .filterBlacklisted(blockTagData, blockTagBlacklist, block.builtInRegistryHolder(), consumer))
                         .map(TagKey::location)
                         .forEach(resourceLocation -> blockTagData.add(resourceLocation, preferredBlockHolder));
             }
