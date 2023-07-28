@@ -1,15 +1,15 @@
 package com.kawaiicakes.almosttagged.tags;
 
-import com.kawaiicakes.almosttagged.AlmostTagged;
 import com.kawaiicakes.almosttagged.DebugDumper;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -17,8 +17,10 @@ import java.util.stream.Stream;
  * <code>TagLoader#build</code>. This map contains keys of type <code>ResourceLocation</code> and
  * values of <code>Collection</code>s of type <code>V</code>.
  * <p>
- * Objects of this class contain a <code>Map</code> indexing all the instances of <code>V</code> bound to
- * a given tag; represented as a <code>ResourceLocation</code>.
+ * Instances of this record contain a <code>Map</code> indexing all the instances of <code>V</code> bound to
+ * a given tag; represented as a <code>ResourceLocation</code> per registry. All instances of <code>V</code> are
+ * <code>Holder.Reference&lt;T&gt;</code>, and <code>V</code> may only represent one registry per instance of
+ * this record.
  * <p>
  * The advantage of using generics here is apparent when considering that <code>TagKey</code>s often share
  * locations, but not registries. Generics allow for easier referencing of a <code>TagKey</code>s in different
@@ -54,8 +56,17 @@ public record TagData<V>(Map<ResourceLocation, Collection<V>> data) implements M
                 .map(entry -> TagUtils.getTagKeyFromResourceLocation((v), entry.getKey()));
     }
 
-    public void add(ResourceLocation resourceLocation, V v) {
-        Collection<V> newCol = new ArrayList<>(this.data.get(resourceLocation));
+    /**
+     * <code>#add</code> is a method not typically seen in <code>Map</code>s. This method is intended to
+     * merge a key-value pair via method arguments into this object.
+     * <p>
+     * Its use is to not overwrite existing values in this object as mappings in this object are used to store
+     * the entirety of declared tag bindings for a registry.
+     * @param resourceLocation  the <code>ResourceLocation</code> representing the key to merge into.
+     * @param v                 the instance of <code>V</code> to be merged into the map at the given key.
+     */
+    public void add(ResourceLocation resourceLocation, V v) { //this could probably be reworked by letting param 2 accept a collection of holders
+        Collection<V> newCol = new ArrayList<>(this.data.get(resourceLocation)); //idk if I like that tho, I'd have to rewrite TagLoaderAPI
         newCol.add(v); //this may run slow. optimize in the future
         this.data.put(resourceLocation, newCol);
     }
