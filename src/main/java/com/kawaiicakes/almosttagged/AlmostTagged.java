@@ -5,6 +5,7 @@ import com.kawaiicakes.almosttagged.config.TagConfigEntries;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TagsUpdatedEvent;
+import net.minecraftforge.event.entity.item.ItemEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -14,6 +15,10 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
+/**
+ * Main class for the mod. Entry points are here and in the RecipeManagerMixin and TagLoaderMixin.
+ * Pretty self-explanatory.
+ */
 @Mod(AlmostTagged.MOD_ID)
 public class AlmostTagged
 {
@@ -28,15 +33,8 @@ public class AlmostTagged
         MinecraftForge.EVENT_BUS.register(this);
     }
     @SubscribeEvent
-    public void FMLConstructMod(final FMLConstructModEvent event) { //any event prior to a server load will not have ITagManager ready yet.
-        Config = TagConfigBuilder.loadConfig();
+    public void FMLConstructMod(final FMLConstructModEvent event) {
+        Config = TagConfigBuilder.loadConfig(); //Doing it like this means the game has to be restarted to apply changes
         LOGGER.info(MOD_ID + " config loaded during FMLConstructModEvent.");
-    }
-
-    @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void tagsUpdated(final @NotNull TagsUpdatedEvent event) { //use different events prn for these purposes
-        if (event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD) {
-            //allows tags to load. should be called after tags are fully loaded. (but before our tags are passed to TagLoaderAPI)
-        }
     }
 }
