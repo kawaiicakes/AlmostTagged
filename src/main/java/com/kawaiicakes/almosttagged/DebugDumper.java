@@ -1,4 +1,4 @@
-package com.kawaiicakes.almosttagged.config;
+package com.kawaiicakes.almosttagged;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
