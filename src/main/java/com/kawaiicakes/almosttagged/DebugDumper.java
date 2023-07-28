@@ -32,7 +32,7 @@ public class DebugDumper {
             Path file = switch (type) {
                 case ITEM -> fileDir.resolve("item_tag_dump.json");
                 case BLOCK -> fileDir.resolve("block_tag_dump.json");
-                default -> throw new RuntimeException("Invalid enum " + type + " as argument!");
+                case CONFIG -> fileDir.resolve("excluded_config_dump.json");
             };
 
             if (Files.notExists(file)) Files.createFile(file);

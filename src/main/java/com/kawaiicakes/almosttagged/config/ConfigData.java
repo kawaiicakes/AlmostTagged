@@ -15,8 +15,11 @@ import java.util.stream.Collectors;
  * This record contains data loaded from each <code>TagConfigEntries</code>. Its purpose is to permit
  * easier operation and reference of this data, including remapping functions. It is intended that
  * there is one instance of <code>ConfigData</code> per field in <code>TagConfigEntries</code>.
+ * <p>
+ * It exists to provide an interface of sorts between <code>TagData&lt;V&gt;</code> and <code>String</code>s.
  *
- * @param data  a <code>Map&lt;String, Set&lt;String&gt;&gt;</code> containing data from the config.
+ * @param data  a <code>Map&lt;String, Set&lt;String&gt;&gt;</code> containing data from the config corresponding to
+ *              a field of <code>TagConfigEntries</code>.
  */
 public record ConfigData(Map<String, Set<String>> data) implements Map<String, Set<String>>{
 
@@ -26,7 +29,7 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
      * based on criteria defined by the blacklisted objects in the config. It is meant to be used on
      * instances of <code>ConfigData</code> from the item/blockBlacklist fields in <code>TagConfigEntries</code>.
      * <p>
-     * The <code>Consumer</code> accepts tags from <code>vTagData#getTags</code> as if this instance
+     * The <code>Consumer</code> accepts tags from <code>vTagData#getTags</code> if this instance
      * of <code>ConfigData</code> does not contain key of instance <code>V</code>. It also accepts tags selectively
      * from <code>vTagData</code> otherwise, provided that the specific tag does not match a blacklisted
      * tag for the key of instance <code>V</code> in the config.
@@ -86,6 +89,8 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
      * Method purposed for non-destructively appending keys and values to this object. If a key exists in both
      * this and <code>pData</code>, then the corresponding value in <code>pData</code> is iterated over
      * and its elements are added to the <code>Set&lt;String&gt;</code> in this object.
+     * <p>
+     * Bear in mind that the object this is used on will be modified.
      * @param pData     the <code>ConfigData</code> to be merged with this object.
      */
     public void merge(@NotNull ConfigData pData) {

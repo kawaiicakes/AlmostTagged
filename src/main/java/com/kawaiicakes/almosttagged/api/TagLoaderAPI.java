@@ -3,7 +3,7 @@ package com.kawaiicakes.almosttagged.api;
 import com.almostreliable.unified.AlmostUnified;
 import com.almostreliable.unified.api.AlmostUnifiedLookup;
 import com.kawaiicakes.almosttagged.config.ConfigData;
-import com.kawaiicakes.almosttagged.config.DebugDumper;
+import com.kawaiicakes.almosttagged.DebugDumper;
 import com.kawaiicakes.almosttagged.tags.TagData;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +31,11 @@ public class TagLoaderAPI {
     private static final ConfigData itemTagBlacklist = new ConfigData(Config.itemTagBlacklist);
     private static final ConfigData blockTagBlacklist = new ConfigData(Config.blockTagBlacklist);
 
-    private static TagData<Holder.Reference<Item>> itemTagData; //these work and return tags loading onto stuff including from datapack edits
+    /**
+     * Both <code>itemTagData</code> and <code>blockTagData</code> will contain their respective maps
+     * but with unified tags.
+     */
+    private static TagData<Holder.Reference<Item>> itemTagData;
     @SuppressWarnings("unchecked")
     public static <V> void setItemTagData(TagData<V> tagData) {itemTagData = (TagData<Holder.Reference<Item>>) tagData;}
 
@@ -58,10 +62,12 @@ public class TagLoaderAPI {
         if (!AlmostUnified.isRuntimeLoaded()) throw new RuntimeException();
         final AlmostUnifiedLookup INST = AlmostUnifiedLookup.INSTANCE;
         final Block AIR = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("minecraft:air"));
+        DebugDumper.dump(itemTagData, DebugDumper.Type.CONFIG);
 
         /*
-        This 2 method sequence is a cheeky little way to transform the other TagConfigEntries fields into
-        the one I've already coded logic for. It could be called somewhere else but here makes sense to me.
+        This 2 call sequence is a cheeky little way to transform the other TagConfigEntries fields into
+        the one I've already coded logic for (item and blockBlacklist). It could be called somewhere else
+        but here makes sense to me.
          */
         blockTagBlacklist.inverseToTarget(itemBlacklist);
         itemTagBlacklist.inverseToTarget(blockBlacklist);
@@ -96,11 +102,8 @@ public class TagLoaderAPI {
             }
         }
 
-        itemBlacklist.print(); //debug purposes.
-        blockBlacklist.print();
-
-        DebugDumper.dump(itemTagData, DebugDumper.Type.ITEM);
-        DebugDumper.dump(blockTagData, DebugDumper.Type.BLOCK);
+        itemTagData.print(DebugDumper.Type.ITEM);
+        blockTagData.print(DebugDumper.Type.BLOCK);
     }
 
     public static <T> void modifyReturn(CallbackInfoReturnable<Map<ResourceLocation, Collection<T>>> map,

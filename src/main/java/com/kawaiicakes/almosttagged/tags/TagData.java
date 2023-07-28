@@ -1,6 +1,7 @@
 package com.kawaiicakes.almosttagged.tags;
 
 import com.kawaiicakes.almosttagged.AlmostTagged;
+import com.kawaiicakes.almosttagged.DebugDumper;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -35,10 +36,11 @@ import java.util.stream.Stream;
 public record TagData<V>(Map<ResourceLocation, Collection<V>> data) implements Map<ResourceLocation, Collection<V>> {
 
     /**
-     * Method used to return information regarding what tags are to be bound to an instance of <code>V</code>. In practice this
-     * is believed to not differ from referencing tags via registries or by <code>Holder</code>.
+     * Method used to return information regarding what tags are to be bound to an instance of <code>V</code>. In
+     * practice this is believed to not differ from referencing tags via registries or by <code>Holder</code>.
+     * The advantage is being able to access these tags prior to them being bound.
      * <p>
-     * The primary use of this method is to assist in returning the tags associated with all items in a tag;
+     * The primary usage of this method is to assist in returning the tags associated with all items in a tag;
      * as in <code>TagLoaderAPI</code>.
      *
      * @param v an instance of type <code>V</code>; expected to be a <code>Holder.Reference</code> of
@@ -58,20 +60,8 @@ public record TagData<V>(Map<ResourceLocation, Collection<V>> data) implements M
         this.data.put(resourceLocation, newCol);
     }
 
-    public void print() {
-        Map<String, Set<String>> printMap = new HashMap<>();
-
-        this.data.values().stream().<V>mapMulti(Iterable::forEach).collect(Collectors.toSet()).forEach(t ->
-                printMap.put(((Holder.Reference<?>) t).get().toString(), getTags(t).map(TagKey::toString)
-                        .collect(Collectors.toSet())));
-
-        AlmostTagged.LOGGER.info("******");
-        AlmostTagged.LOGGER.info("TagData of " + this);
-        printMap.forEach((k, v) -> {
-            AlmostTagged.LOGGER.info(k);
-            AlmostTagged.LOGGER.info(v.toString());
-        });
-        AlmostTagged.LOGGER.info("******");
+    public void print(DebugDumper.Type type) {
+        DebugDumper.dump(this, type);
     }
 
     @Override
