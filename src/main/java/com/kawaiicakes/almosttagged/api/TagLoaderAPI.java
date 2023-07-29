@@ -76,11 +76,15 @@ public class TagLoaderAPI {
             Holder.Reference<Item> preferredItemHolder = Objects.requireNonNull(INST.getPreferredItemForTag(tag))
                     .builtInRegistryHolder(); //Item#builtInRegistryHolder is deprecated but whatever lmao (Block too)
 
+            /*
+            this returns a stream of all tags on the items in a tag, excluding those specified in the blacklist.
+            anything that appears to be an ore is filtered out and processed later such that only ores within the
+            same strata are included in the pool.
+             */
             INST.getPotentialItems(tag)
                     .stream()
                     .<TagKey<?>>mapMulti((item, consumer) -> itemBlacklist
                             .filterBlacklisted(itemTagData, itemTagBlacklist, item.builtInRegistryHolder(), consumer))
-                    .<TagKey<?>>mapMulti((tagInStream, consumer) -> )
                     .map(TagKey::location)
                     .forEach(resourceLocation -> itemTagData.add(resourceLocation, preferredItemHolder));
 
