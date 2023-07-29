@@ -5,6 +5,8 @@
 
 <div align="center">
 
+# **This project is now abandoned as tag inheritance is a feature (about to be) natively implemented as of 29 July 2023.** 
+
 An addon for [Almost Unified] to let preferred items inherit tags.
 
 </div>
