@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public record ConfigData(Map<String, Set<String>> data) implements Map<String, Set<String>>{
 
     /**
-     * <code>#strainer</code> is meant to be used in the context of a <code>mapMulti</code> operation.
+     * <code>#filterBlacklisted</code> is meant to be used in the context of a <code>mapMulti</code> operation.
      * Its purpose is to selectively pass <code>TagKey&lt;?&gt;</code>s to the <code>Consumer</code>
      * based on criteria defined by the blacklisted objects in the config. It is meant to be used on
      * instances of <code>ConfigData</code> from the item/blockBlacklist fields in <code>TagConfigEntries</code>.
@@ -39,7 +39,7 @@ public record ConfigData(Map<String, Set<String>> data) implements Map<String, S
      * @param consumer  the <code>Consumer</code> accepting <code>TagKey&lt;?&gt;</code>s.
      * @param <V>       an instance of <code>Holder.Reference&lt;?&gt;</code>.
      */
-    public <V> void strainer(@NotNull TagData<V> vTagData, ConfigData tagBlacklist, @NotNull V vHolder, Consumer<TagKey<?>> consumer) {
+    public <V> void filterBlacklisted(@NotNull TagData<V> vTagData, ConfigData tagBlacklist, @NotNull V vHolder, Consumer<TagKey<?>> consumer) {
         if (this.containsKey(((Holder.Reference<?>) vHolder).get().toString())) {
             if (Objects.requireNonNull(this.get(vHolder)).isEmpty()) return;
             vTagData.getTags(vHolder)
