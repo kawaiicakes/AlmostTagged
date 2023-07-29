@@ -24,8 +24,11 @@ import static com.kawaiicakes.almosttagged.AlmostTagged.Config;
  * This class is the main interaction point of this mod with the tags from <code>TagLoader</code>,
  * whose data is instantiated in instances of <code>TagData&lt;V&gt;</code>. All overarching operations
  * which perform the unification of tags are likely to be found here.
+ * <p>
+ * All tag changes intended to be made are passed when <code>#modifyReturn</code> is called.
  */
-public class TagLoaderAPI {
+public class TagLoaderAPI { //AlmostUnifiedRuntimeImpl and ReplacementMap are probably what I want to use. I may also just
+    //have to make a new (but identical) instance of StoneStrataHandler.
     private static final ConfigData itemBlacklist = new ConfigData(Config.itemBlacklist);
     private static final ConfigData blockBlacklist = new ConfigData(Config.blockBlacklist);
     private static final ConfigData itemTagBlacklist = new ConfigData(Config.itemTagBlacklist);
@@ -80,7 +83,38 @@ public class TagLoaderAPI {
             this returns a stream of all tags on the items in a tag, excluding those specified in the blacklist.
             anything that appears to be an ore is filtered out and processed later such that only ores within the
             same strata are included in the pool.
-             */
+
+            *new idea: instead, the Stream<Item> I get is going to be partitioned using Collectors according to
+            whether or not the item in question satisfies #isStoneStrataTag. In cases where this is false,
+            proceed as normal. In cases where this is true, each pool will instead be generated per tag per strata.
+
+            Collectors#groupingBy accepts a function accepting elements of the stream based on the return of
+            the function. it maps these elements to keys provided by the function. I can use this to group the ores
+            containing strata tags into their respective stratum, and then derive their tag pools from there.
+
+            logic also has to be redone with the #filterBlacklisted method bc it doesn't seem to work... at present
+            this is a shit fuck and needs to be moved into different classes or something...
+
+            oh right. and i still gotta obtain the StoneStrataHandler instantiated in AlmostUnifiedRuntimeImpl...
+            At present I may just have to instantiate one using identical args, but let's see what the guys in the
+            discord have to say...
+
+            Example of mentioned Collectors stuff:
+                Random r = new Random();
+
+                Map<Boolean, List<String>> groups = stream
+                    .collect(Collectors.partitioningBy(x -> r.nextBoolean()));
+
+                System.out.println(groups.get(false).size());
+                System.out.println(groups.get(true).size()); check this shit out
+
+                for grouping into more than 2 groups:
+                Map<Object, List<String>> groups = stream
+                    .collect(Collectors.groupingBy(x -> r.nextInt(3)));
+                System.out.println(groups.get(0).size());
+                System.out.println(groups.get(1).size());
+                System.out.println(groups.get(2).size());
+            */
             INST.getPotentialItems(tag)
                     .stream()
                     .<TagKey<?>>mapMulti((item, consumer) -> itemBlacklist
